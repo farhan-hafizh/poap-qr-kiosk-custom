@@ -3,6 +3,8 @@ import { initializeApp } from "firebase/app";
 import {
 	getFirestore,
 	collection,
+	doc,
+	setDoc,
 	// addDoc,
 	// serverTimestamp,
 	onSnapshot,
@@ -29,13 +31,22 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 function getData(callback) {
-	return onSnapshot(query(collection(db, "poap")), (querySnapshot) => {
-		const data = querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data(),
-		}));
-		callback(data);
-	});
+	return onSnapshot(
+		query(collection(db, "poap"), orderBy("isScanned", "asc")),
+		(querySnapshot) => {
+			const data = querySnapshot.docs.map((doc) => ({
+				id: doc.id,
+				...doc.data(),
+			}));
+			console.log(data);
+			callback(data);
+		}
+	);
 }
 
-export { getData };
+function editData(id, value) {
+	const docRef = doc(db, "poap", id);
+	setDoc(docRef, value);
+}
+
+export { getData, editData };
